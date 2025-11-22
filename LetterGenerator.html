@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body {
+      font-family: 'Google Sans', Arial, sans-serif;
+      margin: 0;
+      padding: 25px;
+    }
+    
+    .container {
+      max-width: 100%;
+      background: white;
+      border-radius: 8px;
+    }
+    
+    .header {
+      display: none;
+      text-align: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #e8eaed;
+    }
+    
+    .header h2 {
+      margin: 0;
+      color: #1a73e8;
+      font-size: 20px;
+      font-weight: 500;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #3c4043;
+      font-size: 14px;
+    }
+    
+    .required {
+      color: #d93025;
+    }
+    
+    select, input, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 14px;
+      background: white;
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+      resize: vertical;
+    }
+    
+    textarea {
+      min-height: 80px;
+      font-family: inherit;
+    }
+    
+    select:focus, input:focus, textarea:focus {
+      outline: none;
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 1px #1a73e8;
+    }
+
+    /* Rich Text Editor Styles */
+    .rich-text-container {
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      background: white;
+      min-height: 120px;
+      transition: border-color 0.2s;
+    }
+
+    .rich-text-container:focus-within {
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 1px #1a73e8;
+    }
+
+    .rich-text-toolbar {
+      background: #f8f9fa;
+      border-bottom: 1px solid #dadce0;
+      padding: 8px 12px;
+      display: flex;
+      gap: 8px;
+      border-radius: 4px 4px 0 0;
+    }
+
+    .toolbar-btn {
+      background: white;
+      border: 1px solid #dadce0;
+      border-radius: 3px;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+
+    .toolbar-btn:hover {
+      background: #f1f3f4;
+    }
+
+    .toolbar-btn.active {
+      background: #1a73e8;
+      color: white;
+      border-color: #1a73e8;
+    }
+
+    .rich-text-editor {
+      min-height: 100px;
+      padding: 12px;
+      outline: none;
+      line-height: 1.5;
+    }
+
+    .rich-text-editor ul, .rich-text-editor ol {
+      margin: 8px 0;
+      padding-left: 24px;
+    }
+
+    .rich-text-editor li {
+      margin: 4px 0;
+    }
+    
+    .additional-fields {
+      background: #f8f9fa;
+      border-radius: 6px;
+      padding: 16px;
+      margin: 20px 0;
+      border-left: 4px solid #1a73e8;
+      display: none;
+    }
+    
+    .additional-fields h3 {
+      margin-top: 0;
+      color: #1a73e8;
+      font-size: 16px;
+    }
+    
+    .buttons {
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid #e8eaed;
+      display: flex;
+      justify-content: center;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      margin: 0 8px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+      text-transform: none;
+      min-width: 100px;
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .btn-primary {
+      background-color: #1a73e8;
+      color: white;
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+      background-color: #1557b0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .btn-secondary {
+      background-color: #5f6368;
+      color: white;
+    }
+    
+    .btn-secondary:hover:not(:disabled) {
+      background-color: #3c4043;
+    }
+    
+    .btn-outline {
+      background-color: transparent;
+      color: #1a73e8;
+      border: 1px solid #1a73e8;
+    }
+    
+    .btn-outline:hover:not(:disabled) {
+      background-color: #f8f9ff;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 40px;
+    }
+    
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #1a73e8;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .success {
+      text-align: center;
+    }
+
+    .instruction-text{
+      color: #4b5563;
+      font-size: 16px;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    
+    .file-link {
+        background-color: #dbeafe;
+        border: 1px solid #93c5fd;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 16px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: block;
+        
+        color: #2563eb;
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .file-link:hover {
+        background-color: #bfdbfe;
+        transform: translateY(-1px);
+    }
+    
+    .error {
+      color: #d93025;
+      background-color: #fce8e6;
+      padding: 12px;
+      border-radius: 4px;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    
+    .search-box {
+      position: relative;
+    }
+    
+    .search-box input {
+      padding-right: 40px;
+    }
+    
+    .search-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #5f6368;
+      pointer-events: none;
+    }
+
+    .success-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .info-badge {
+      display: inline-block;
+      background-color: #e3f2fd;
+      color: #1565c0;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-left: 8px;
+      font-weight: 500;
+    }
+
+    .info-badge.applicant {
+      background-color: #fff3e0;
+      color: #e65100;
+    }
+
+    .info-badge.intern {
+      background-color: #f3e5f5;
+      color: #7b1fa2;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Generate Letter</h2>
+    </div>
+    
+    <div id="form-content">
+      <div class="form-group">
+        <label for="letter-type-select">
+          Letter Type <span class="required">*</span>
+        </label>
+        <select id="letter-type-select">
+          <option value="">Loading templates...</option>
+        </select>
+      </div>
+      
+      <div class="form-group" id="employee-group" style="display: none;">
+        <label for="employee-select">
+          <span id="employee-label">Select Employee</span> <span class="required">*</span>
+        </label>
+        <div class="search-box">
+          <select id="employee-select">
+            <option value="">Choose an employee...</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="additional-fields" id="additional-fields">
+        <h3>Additional Information</h3>
+        <div id="additional-fields-content"></div>
+      </div>
+      
+      <div class="buttons">
+        <button class="btn btn-primary" onclick="generateLetter()" id="generate-btn" disabled>
+          Generate Letter
+        </button>
+        <button class="btn btn-secondary" onclick="google.script.host.close()">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    let employees = [];
+    let interns = [];
+    let applicants = [];
+    let templates = [];
+    let additionalFieldsConfig = {};
+    let additionalFieldsLoaded = false;
+    
+    // Initialize the form when page loads
+    window.onload = function() {
+      loadTemplates();
+      loadEmployees();
+      loadInterns();
+      loadApplicants();
+      loadAdditionalFieldsConfig();
+    };
+    
+    function loadEmployees() {
+      google.script.run
+        .withSuccessHandler(function(employeeList) {
+          employees = employeeList;
+        })
+        .withFailureHandler(function(error) {
+          console.error('Error loading employees:', error);
+          employees = [];
+        })
+        .getAllEmployees();
+    }
+    
+    function loadInterns() {
+      google.script.run
+        .withSuccessHandler(function(internList) {
+          interns = internList;
+        })
+        .withFailureHandler(function(error) {
+          console.error('Error loading interns:', error);
+          interns = [];
+        })
+        .getAllInterns();
+    }
+    
+    function loadApplicants() {
+      google.script.run
+        .withSuccessHandler(function(applicantList) {
+          applicants = applicantList;
+        })
+        .withFailureHandler(function(error) {
+          console.error('Error loading applicants:', error);
+          applicants = [];
+        })
+        .getAllApplicants();
+    }
+    
+    function loadTemplates() {
+      google.script.run
+        .withSuccessHandler(function(templateList) {
+          templates = templateList;
+          const select = document.getElementById('letter-type-select');
+          select.innerHTML = '<option value="">Choose a letter type...</option>';
+          
+          templates.forEach(function(template) {
+            const option = document.createElement('option');
+            option.value = template.name;
+            option.textContent = template.name;
+            select.appendChild(option);
+          });
+          
+          select.addEventListener('change', function() {
+            onLetterTypeChange();
+          });
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('letter-type-select').innerHTML = 
+            '<option value="">Error loading templates</option>';
+          console.error('Error loading templates:', error);
+        })
+        .getAllTemplateNames();
+    }
+    
+    function loadAdditionalFieldsConfig() {
+      google.script.run
+        .withSuccessHandler(function(config) {
+          additionalFieldsConfig = config;
+          additionalFieldsLoaded = true;
+        })
+        .withFailureHandler(function(error) {
+          console.error('Error loading additional fields config:', error);
+          additionalFieldsLoaded = true;
+        })
+        .getAdditionalFieldsConfig();
+    }
+    
+    function onLetterTypeChange() {
+      const letterType = document.getElementById('letter-type-select').value;
+      const employeeGroup = document.getElementById('employee-group');
+      const employeeSelect = document.getElementById('employee-select');
+      const employeeLabel = document.getElementById('employee-label');
+
+      if (!letterType) {
+        employeeGroup.style.display = 'none';
+        hideAdditionalFields();
+        updateButtonStates();
+        return;
+      }
+
+      employeeGroup.style.display = 'block';
+
+      // Determine the list type based on letter type
+      const isInternLetter = letterType === 'Certificate of Completion for Intern';
+      const isApplicantLetter = letterType === 'Background Check';
+      const isJobOfferLetter = letterType === 'Job Offer';
+
+      employeeSelect.innerHTML = '';
+
+      if (isApplicantLetter) {
+        // Sort applicants alphabetically by full name
+        const sortedApplicants = [...applicants].sort((a, b) => a.fullName.localeCompare(b.fullName));
+        
+        employeeLabel.innerHTML = '<span class="info-badge applicant">Applicant List</span>';
+        employeeSelect.innerHTML = '<option value="">Choose an applicant...</option>';
+        
+        sortedApplicants.forEach(function(applicant) {
+          const option = document.createElement('option');
+          option.value = applicant.rowIndex;
+          option.textContent = applicant.displayName;
+          option.dataset.sheetType = 'applicant';
+          employeeSelect.appendChild(option);
+        });
+      } else if (isInternLetter) {
+        // Sort interns alphabetically by full name
+        const sortedInterns = [...interns].sort((a, b) => a.fullName.localeCompare(b.fullName));
+        
+        employeeLabel.innerHTML = '<span class="info-badge intern">Intern List</span>';
+        employeeSelect.innerHTML = '<option value="">Choose an intern...</option>';
+        
+        sortedInterns.forEach(function(intern) {
+          const option = document.createElement('option');
+          option.value = intern.rowIndex;
+          option.textContent = intern.displayName;
+          option.dataset.sheetType = 'intern';
+          employeeSelect.appendChild(option);
+        });
+      } else if (isJobOfferLetter) {
+        // Sort both employees and applicants alphabetically
+        const sortedEmployees = [...employees].sort((a, b) => a.fullName.localeCompare(b.fullName));
+        const sortedApplicants = [...applicants].sort((a, b) => a.fullName.localeCompare(b.fullName));
+        
+        employeeLabel.innerHTML = '<span class="info-badge">Employees or Applicants</span>';
+        employeeSelect.innerHTML = '<option value="">Choose an employee...</option>';
+        
+        // Combine and sort all people together
+        const allPeople = [
+          ...sortedEmployees.map(emp => ({...emp, type: 'Employee'})),
+          ...sortedApplicants.map(app => ({...app, type: 'Applicant'}))
+        ].sort((a, b) => a.fullName.localeCompare(b.fullName));
+        
+        allPeople.forEach(function(person) {
+          const option = document.createElement('option');
+          option.value = person.rowIndex;
+          option.textContent = person.displayName + ` [${person.type}]`;
+          option.dataset.sheetType = person.type.toLowerCase();
+          employeeSelect.appendChild(option);
+        });
+      } else {
+        // Sort employees alphabetically by full name
+        const sortedEmployees = [...employees].sort((a, b) => a.fullName.localeCompare(b.fullName));
+        
+        employeeLabel.innerHTML = '<span class="info-badge">Employee List</span>';
+        employeeSelect.innerHTML = '<option value="">Choose an employee...</option>';
+        
+        sortedEmployees.forEach(function(emp) {
+          const option = document.createElement('option');
+          option.value = emp.rowIndex;
+          option.textContent = emp.displayName;
+          option.dataset.sheetType = 'employee';
+          employeeSelect.appendChild(option);
+        });
+      }
+
+      employeeSelect.value = '';
+
+      if (!employeeSelect.hasAttribute('data-listener-added')) {
+        employeeSelect.addEventListener('change', updateButtonStates);
+        employeeSelect.setAttribute('data-listener-added', 'true');
+      }
+
+      showAdditionalFields();
+      updateButtonStates();
+    }
+    
+    function hideAdditionalFields() {
+      const additionalFieldsSection = document.getElementById('additional-fields');
+      const additionalFieldsContent = document.getElementById('additional-fields-content');
+      
+      additionalFieldsSection.style.display = 'none';
+      additionalFieldsContent.innerHTML = '';
+    }
+    
+    function showAdditionalFields() {
+      const letterType = document.getElementById('letter-type-select').value;
+      const additionalFieldsSection = document.getElementById('additional-fields');
+      const additionalFieldsContent = document.getElementById('additional-fields-content');
+      
+      additionalFieldsContent.innerHTML = '';
+      
+      if (letterType && additionalFieldsConfig[letterType] && additionalFieldsConfig[letterType].length > 0) {
+        const fields = additionalFieldsConfig[letterType];
+        let html = '';
+        
+        fields.forEach(function(field) {
+          html += `<div class="form-group">`;
+          html += `<label for="additional-${field.name.replace(/\s+/g, '-')}">${field.name}`;
+          
+          if (field.required !== false) {
+            html += ` <span class="required">*</span>`;
+          }
+          
+          html += `</label>`;
+          
+          if (field.type === 'select') {
+            html += `<select id="additional-${field.name.replace(/\s+/g, '-')}">`;
+            html += `<option value="">Choose ${field.name.toLowerCase()}...</option>`;
+            field.options.forEach(function(option) {
+              const isSelected = field.value === option ? ' selected' : '';
+              html += `<option value="${option}"${isSelected}>${option}</option>`;
+            });
+            html += `</select>`;
+          } else if (field.type === 'richtext') {
+            const fieldId = field.name.replace(/\s+/g, '-');
+            /* html += `
+              <div class="rich-text-container">
+                <div class="rich-text-toolbar">
+                  <button type="button" class="toolbar-btn" onclick="formatText('bold', '${fieldId}')" title="Bold">
+                    <strong>B</strong>
+                  </button>
+                  <button type="button" class="toolbar-btn" onclick="formatText('italic', '${fieldId}')" title="Italic">
+                    <em>I</em>
+                  </button>
+                  <button type="button" class="toolbar-btn" onclick="formatText('insertUnorderedList', '${fieldId}')" title="Bullet List">
+                    • List
+                  </button>
+                  <button type="button" class="toolbar-btn" onclick="formatText('insertOrderedList', '${fieldId}')" title="Numbered List">
+                    1. List
+                  </button>
+                </div>
+                <div id="additional-${fieldId}" class="rich-text-editor" contenteditable="true" data-placeholder="${field.placeholder || ''}"></div>
+              </div>`; */
+              html += `
+              <div class="rich-text-container">
+                <div class="rich-text-toolbar">
+                  <button type="button" class="toolbar-btn" onclick="formatText('insertUnorderedList', '${fieldId}')" title="Bullet List">
+                    • List
+                  </button>
+                </div>
+                <div id="additional-${fieldId}" class="rich-text-editor" contenteditable="true" data-placeholder="${field.placeholder || ''}"></div>
+              </div>`;
+          } else if (field.type === 'textarea') {
+            const defaultValue = field.value || '';
+            const readonlyAttr = field.readonly ? ' readonly style="background-color: #f5f5f5;"' : '';
+            html += `<textarea id="additional-${field.name.replace(/\s+/g, '-')}" placeholder="${field.placeholder || ''}"${readonlyAttr}>${defaultValue}</textarea>`;
+          } else if (field.type === 'date') {
+            const defaultValue = field.value ? ` value="${field.value}"` : '';
+            const readonlyAttr = field.readonly ? ' readonly style="background-color: #f5f5f5;"' : '';
+            html += `<input type="date" id="additional-${field.name.replace(/\s+/g, '-')}"${defaultValue}${readonlyAttr} />`;
+          } else if (field.type === 'time') {
+            const defaultValue = field.value ? ` value="${field.value}"` : '';
+            const readonlyAttr = field.readonly ? ' readonly style="background-color: #f5f5f5;"' : '';
+            html += `<input type="time" id="additional-${field.name.replace(/\s+/g, '-')}"${defaultValue}${readonlyAttr} />`;
+          } else if (field.type === 'number') {
+            const defaultValue = field.value ? ` value="${field.value}"` : '';
+            const readonlyAttr = field.readonly ? ' readonly style="background-color: #f5f5f5;"' : '';
+            html += `<input type="number" id="additional-${field.name.replace(/\s+/g, '-')}" placeholder="${field.placeholder || ''}"${defaultValue}${readonlyAttr} />`;
+          } else {
+            const defaultValue = field.value ? ` value="${field.value}"` : '';
+            const readonlyAttr = field.readonly ? ' readonly style="background-color: #f5f5f5;"' : '';
+            html += `<input type="text" id="additional-${field.name.replace(/\s+/g, '-')}" placeholder="${field.placeholder || ''}"${defaultValue}${readonlyAttr} />`;
+          }
+          
+          html += `</div>`;
+        });
+        
+        additionalFieldsContent.innerHTML = html;
+        additionalFieldsSection.style.display = 'block';
+        
+        // Auto-populate fields that need it
+        fields.forEach(function(field) {
+          if (field.autoPopulate && field.name === 'Incident Number') {
+            google.script.run
+              .withSuccessHandler(function(irNumber) {
+                const fieldElement = document.getElementById(`additional-${field.name.replace(/\s+/g, '-')}`);
+                if (fieldElement) {
+                  fieldElement.value = irNumber;
+                }
+              })
+              .withFailureHandler(function(error) {
+                console.error('Error loading IR number:', error);
+                const fieldElement = document.getElementById(`additional-${field.name.replace(/\s+/g, '-')}`);
+                if (fieldElement) {
+                  fieldElement.value = 'Error loading';
+                }
+              })
+              .getCurrentIRNumber();
+          }
+          
+          const fieldElement = document.getElementById(`additional-${field.name.replace(/\s+/g, '-')}`);
+          if (fieldElement && !field.readonly) {
+            if (field.type === 'richtext') {
+              fieldElement.addEventListener('input', updateButtonStates);
+              fieldElement.addEventListener('blur', updateButtonStates);
+            } else {
+              fieldElement.addEventListener('change', updateButtonStates);
+              fieldElement.addEventListener('input', updateButtonStates);
+            }
+          }
+        });
+      } else {
+        additionalFieldsSection.style.display = 'none';
+      }
+    }
+
+    // Rich text editor functions
+    function formatText(command, fieldId) {
+      const editor = document.getElementById(`additional-${fieldId}`);
+      if (editor) {
+        editor.focus();
+        document.execCommand(command, false, null);
+        updateButtonStates();
+      }
+    }
+    
+    function areRequiredAdditionalFieldsFilled() {
+      const letterType = document.getElementById('letter-type-select').value;
+      
+      if (!letterType || !additionalFieldsConfig[letterType] || additionalFieldsConfig[letterType].length === 0) {
+        return true;
+      }
+      
+      const fields = additionalFieldsConfig[letterType];
+      
+      for (let field of fields) {
+        // Skip readonly fields from validation
+        if (field.required !== false && !field.readonly) {
+          const fieldElement = document.getElementById(`additional-${field.name.replace(/\s+/g, '-')}`);
+          if (!fieldElement) continue;
+          
+          let value = '';
+          if (field.type === 'richtext') {
+            value = fieldElement.textContent.trim();
+          } else {
+            value = fieldElement.value.trim();
+          }
+          
+          if (!value) {
+            return false;
+          }
+        }
+      }
+      
+      return true;
+    }
+    
+    function updateButtonStates() {
+      const letterTypeSelected = document.getElementById('letter-type-select').value;
+      const employeeSelected = document.getElementById('employee-select').value;
+      const bothSelected = letterTypeSelected && employeeSelected;
+      
+      const additionalFieldsFilled = areRequiredAdditionalFieldsFilled();
+      document.getElementById('generate-btn').disabled = !bothSelected || !additionalFieldsFilled;
+    }
+    
+    function getAdditionalFieldsData() {
+      const letterType = document.getElementById('letter-type-select').value;
+      const additionalData = {};
+      
+      if (letterType && additionalFieldsConfig[letterType]) {
+        const fields = additionalFieldsConfig[letterType];
+        
+        fields.forEach(function(field) {
+          const fieldElement = document.getElementById(`additional-${field.name.replace(/\s+/g, '-')}`);
+          if (fieldElement) {
+            if (field.type === 'richtext') {
+              // Get HTML content for rich text fields
+              additionalData[field.name] = fieldElement.innerHTML;
+            } else if (fieldElement.value) {
+              additionalData[field.name] = fieldElement.value;
+            }
+          }
+        });
+      }
+      
+      return additionalData;
+    }
+
+    function resetForm() {
+      document.getElementById('form-content').innerHTML = `
+        <div class="form-group">
+          <label for="letter-type-select">
+            Letter Type <span class="required">*</span>
+          </label>
+          <select id="letter-type-select">
+            <option value="">Choose a letter type...</option>
+          </select>
+        </div>
+        
+        <div class="form-group" id="employee-group" style="display: none;">
+          <label for="employee-select">
+            <span id="employee-label">Select Employee</span> <span class="required">*</span>
+          </label>
+          <div class="search-box">
+            <select id="employee-select">
+              <option value="">Choose an employee...</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="additional-fields" id="additional-fields">
+          <h3>Additional Information</h3>
+          <div id="additional-fields-content"></div>
+        </div>
+        
+        <div class="buttons">
+          <button class="btn btn-primary" onclick="generateLetter()" id="generate-btn" disabled>
+            Generate Letter
+          </button>
+          <button class="btn btn-secondary" onclick="google.script.host.close()">
+            Cancel
+          </button>
+        </div>
+      `;
+      
+      loadTemplates();
+    }
+    
+    function generateLetter() {
+      const employeeRowIndex = document.getElementById('employee-select').value;
+      const letterType = document.getElementById('letter-type-select').value;
+      const additionalFields = getAdditionalFieldsData();
+      
+      if (!employeeRowIndex || !letterType) {
+        alert('Please select both a letter type and person.');
+        return;
+      }
+      
+      if (!areRequiredAdditionalFieldsFilled()) {
+        alert('Please fill in all required additional fields.');
+        return;
+      }
+      
+      // Determine the letter category
+      const isInternLetter = letterType === 'Certificate of Completion for Intern';
+      const isApplicantLetter = letterType === 'Background Check';
+      const isJobOfferLetter = letterType === 'Job Offer';
+      
+      // For Job Offer, determine if it's an applicant based on the selected option's dataset
+      let finalIsApplicantLetter = isApplicantLetter;
+      if (isJobOfferLetter) {
+        const selectedOption = document.getElementById('employee-select').selectedOptions[0];
+        finalIsApplicantLetter = selectedOption.dataset.sheetType === 'applicant';
+      }
+      
+      document.getElementById('form-content').innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+          <h3>Generating Letter...</h3>
+          <p>Please wait while the document is being created. This may take a few moments.</p>
+        </div>
+      `;
+      
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            document.getElementById('form-content').innerHTML = `
+              <div class="success">
+                <h3 style="color:#137333; font-size:25px;">Letter Generated Successfully!</h3>
+                <div class="instruction-text">Click the generated file below to review and verify all details are accurate before use.</div>
+                <a href="${result.fileUrl}" target="_blank" class="file-link">
+                  ${result.documentName}
+                </a>
+                <div style="color: #666; font-size: 14px; margin-top: 16px;">
+                  <div>Date: ${result.currentDate}</div>
+                  <div>Replacements made: ${result.replacementsMade}</div>
+                </div>
+                <div class="success-buttons">
+                  <button class="btn btn-primary" onclick="resetForm()">Generate Another Letter</button>
+                  <button class="btn btn-secondary" onclick="google.script.host.close()">Close</button>
+                </div>
+              </div>
+            `;
+          } else {
+            document.getElementById('form-content').innerHTML = `
+              <div class="error">
+                <h3>Generation Failed</h3>
+                <p>${result.message}</p>
+                <button class="btn btn-secondary" onclick="resetForm()">Try Again</button>
+              </div>
+            `;
+          }
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('form-content').innerHTML = `
+            <div class="error">
+              <h3>Error</h3>
+              <p>Failed to generate letter: ${error.message}</p>
+              <button class="btn btn-secondary" onclick="resetForm()">Try Again</button>
+            </div>
+          `;
+        })
+        .generateLetterFromModal(parseInt(employeeRowIndex), letterType, additionalFields, isInternLetter, finalIsApplicantLetter);
+    }
+  </script>
+</body>
+</html>
